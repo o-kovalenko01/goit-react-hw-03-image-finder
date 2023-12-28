@@ -2,10 +2,13 @@
   "name": "react-homework-template",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://o-kovalenko01.github.io/react-homework-template/",
+  "homepage": "https://o-kovalenko01.github.io/goit-react-hw-03-image-finder/",
   "dependencies": {
+    "axios": "^1.6.3",
+    "nanoid": "^5.0.4",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
+    "react-loader-spinner": "^6.1.6",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.3"
   },
