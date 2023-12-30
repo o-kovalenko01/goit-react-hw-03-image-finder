@@ -21,42 +21,45 @@ export default class App extends Component {
       hasMore: true,
     };
   }
-  componentDidMount() {
-    this.fetchImages();
-  }
 
-  fetchImages = () => {
+  fetchImages = async () => {
     const { query, page } = this.state;
     const apiKey = '40628537-4691ca78f12bcbf3b40caa1e0';
 
     this.setState({ isLoading: true });
-
-    axios
-      .get(
+    try {
+      const response = await axios.get(
         `https://pixabay.com/api/?q=${query}&page=${page}&key=${apiKey}&image_type=photo&orientation=horizontal&per_page=12`
-      )
-      .then(response => {
-        if (response.data.hits.length === 0) {
-          this.setState({ hasMore: false });
-        } else {
-          this.setState(prevState => ({
-            images: [...prevState.images, ...response.data.hits],
-            page: prevState.page + 1,
-          }));
-        }
-      })
-      .catch(error => console.error('Error fetching images:', error))
-      .finally(() => this.setState({ isLoading: false }));
+      );
+
+      const newImages = response.data.hits.map(
+        ({ id, webformatURL, largeImageURL }) => ({
+          id,
+          webformatURL,
+          largeImageURL,
+        })
+      );
+
+      this.setState(prevState => ({
+        images: [...prevState.images, ...newImages],
+      }));
+    } catch (error) {
+      console.error('Error fetching images:', error);
+    } finally {
+      this.setState({ isLoading: false });
+    }
   };
 
   handleSearch = newQuery => {
-    this.setState({ query: newQuery, page: 1, images: [], hasMore: true }, () =>
-      this.fetchImages()
-    );
+    const { query } = this.state;
+
+    if (query !== newQuery) {
+      this.setState({ query: newQuery, images: [], page: 1 });
+    }
   };
 
   handleLoadMore = () => {
-    this.fetchImages();
+    this.setState({ page: this.state.page + 1 });
   };
 
   handleImageClick = selectedImage => {
@@ -66,6 +69,17 @@ export default class App extends Component {
   handleCloseModal = () => {
     this.setState({ showModal: false });
   };
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.query !== this.state.query ||
+      prevState.page !== this.state.page
+    ) {
+      if (this.state.query !== '') {
+        this.fetchImages();
+      }
+    }
+  }
 
   render() {
     const { images, isLoading, showModal, selectedImage, hasMore } = this.state;
